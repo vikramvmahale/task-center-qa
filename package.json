@@ -1,0 +1,34 @@
+{
+  "name": "automation-tests",
+  "version": "1.0.0",
+  "description": "Playwright-based automation test suite (UI and API).",
+  "main": "index.js",
+  "scripts": {
+    "smoketest": "npx playwright test -g@smokeTest --config=playwright.config.ts",
+    "fullTest": "npx playwright test --config=playwright.config.ts",
+    "regression": "npx playwright test -g@regression --config=playwright.config.ts",
+    "test:js": "npx playwright test --config=playwright.config.js",
+    "jenkins:smoketest": "npm ci && npm run smoketest",
+    "ui:test": "npx playwright test tests/ui/ --config=playwright.config.ts",
+    "ui:smoketest": "npx playwright test tests/ui/ -g@smokeTest --config=playwright.config.ts",
+    "api:test": "npx playwright test tests/api/ --config=playwright.config.ts",
+    "api:smoketest": "npx playwright test tests/api/ -g@smokeTest --config=playwright.config.ts",
+    "functional:test": "npx playwright test tests/functional/ --config=playwright.config.ts",
+    "functional:smoketest": "npx playwright test tests/functional/ -g@smokeTest --config=playwright.config.ts",
+    "test:all": "npx playwright test --config=playwright.config.ts"
+  },
+  "keywords": [
+    "playwright",
+    "automation",
+    "ui-tests",
+    "api-tests"
+  ],
+  "author": "eXp Realty QA",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^24.6.2",
+    "typescript": "^5.9.3"
+  }
+}
