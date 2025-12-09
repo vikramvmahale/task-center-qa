@@ -1,0 +1,40 @@
+version: '3.8'
+
+# Docker Compose configuration for Playwright automation test environment
+services:
+  playwright-tests:
+    build: .
+    container_name: automation-playwright-tests
+    environment:
+      - CI=true
+      - NODE_ENV=test
+    volumes:
+      # Mount test results directory to persist reports
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    # Override default command for different test types
+    command: ["npm", "run", "fullTest"]
+
+  # Service for running full test suite
+  playwright-full-tests:
+    build: .
+    container_name: automation-playwright-full-tests
+    environment:
+      - CI=true
+      - NODE_ENV=test
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    command: ["npm", "run", "fullTest"]
+
+  # Service for running regression tests
+  playwright-regression-tests:
+    build: .
+    container_name: automation-playwright-regression-tests
+    environment:
+      - CI=true
+      - NODE_ENV=test
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    command: ["npm", "run", "regression"]
