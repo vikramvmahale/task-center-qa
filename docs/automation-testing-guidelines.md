@@ -1,4 +1,4 @@
-## Automation Testing Guidelines (Template)
+## Automation Testing Guidelines - Task Center
 
 This document captures the key patterns and best practices from the existing automation in this repository so we can apply them consistently when building tests, APIs, and page objects for this and future projects.
 
@@ -18,11 +18,11 @@ This document captures the key patterns and best practices from the existing aut
   - **API layer**
     - Base client: `ApiClient.ts`
     - Manager: `ApiManager.ts`
-    - Endpoint classes: `endpoints/ChatStreamApi.ts`, `endpoints/SomeFeatureApi.ts`
-    - Tests: `tests/api/ChatStreamApiTests.spec.ts`
+    - Endpoint classes: `endpoints/CheckFileApi.ts`, `endpoints/SomeFeatureApi.ts`
+    - Tests: `tests/api/CheckFileApiTests.spec.ts`
   - **UI layer**
-    - Page objects: `ChatPagePO.ts`, `SomeOtherPagePO.ts`
-    - Tests: `tests/ui/ChatPageTests.spec.ts`
+    - Page objects: `TaskCenterLoginPagePO.ts`, `TaskCenterHomePagePO.ts`, `SomeOtherPagePO.ts`
+    - Tests: `tests/ui/TaskCenterLoginTests.spec.ts`
   - **Managers**
     - Page objects: `POManager.ts`
     - APIs: `ApiManager.ts`
@@ -57,12 +57,10 @@ Each page object should encapsulate a single logical page or feature, with a con
     - `expectGreetingForUser(name: string)`.
     - `expectLoggedInUser(name: string)`.
   - **Actions** – methods that perform user flows without hard assertions:
-    - `sendMessage(message: string)`
-    - `clickNewChat()`
+    - `clickExpPassport()`
     - `setPropertyAddressFilter(address: string)`
   - **Getters / utilities** – methods that read data or encapsulate waiting logic:
-    - `getLoggedInUserName()`
-    - `getRecentChatTitles()`
+    - `getCurrentUrl()`
     - `waitForPageLoad()`
 
 - **Guidelines**
@@ -80,16 +78,14 @@ Each page object should encapsulate a single logical page or feature, with a con
 
 - **Pattern**
   - Fields:
-    - `private transactionDashboardPage: TransactionDashboardPagePO;`
-    - `private transactionDetailsPage: TransactionDetailsPagePO;`
-    - `private chatPage: ChatPagePO;`
+    - `private taskCenterLoginPage: TaskCenterLoginPagePO;`
+    - `private taskCenterHomePage: TaskCenterHomePagePO;`
     - `private authPage?: AuthPagePO;`
   - Constructor:
     - Initialize all page objects with the shared `Page` instance.
   - Methods:
-    - `getTransactionDashboardPage(): TransactionDashboardPagePO`
-    - `getTransactionDetailsPage(): TransactionDetailsPagePO`
-    - `getChatPage(): ChatPagePO`
+    - `getTaskCenterLoginPage(): TaskCenterLoginPagePO`
+    - `getTaskCenterHomePage(): TaskCenterHomePagePO`
     - `getAuthPage(authUrl: string): AuthPagePO`
 
 - **Guidelines**
@@ -119,7 +115,7 @@ Each page object should encapsulate a single logical page or feature, with a con
     - `@functional` – cross-feature or end-to-end flows
     - Additional tags (`@smoke`, `@regression`, `@bug`) can be added as needed.
   - Example:
-    - `test('should load chat page', { tag: ['@ui'] }, async ({ page }) => { ... });`
+    - `test('should successfully log in and land on home page', { tag: ['@ui'] }, async ({ page }) => { ... });`
 
 ---
 
@@ -130,36 +126,33 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
 - **`ApiClient`**
   - Single responsibility: HTTP transport and authentication.
   - Typical usage pattern:
-    - Configure a base URL for the application API (for example, `https://test-agent-platform-model-api.example.com`).
+    - Configure a base URL for the application API (for example, `https://accp-tc.exprealty.com/`).
     - Use Bearer token auth via `Authorization: Bearer <token>` when appropriate.
     - Provide `get`, `post`, `put`, `delete` methods that return a shared `ApiResponse` type.
     - Log request/response metadata for debugging.
-    - Support both JSON responses and raw text responses (e.g., for streaming/chat endpoints).
-
-- **`TokenManager`**
-  - Handles fetching and caching Bearer tokens from an auth provider (e.g. Cognito `/oauth2/token`).
-  - Caches token + expiry with a safety buffer; reused by all API calls in a worker.
+    - Support both JSON responses and raw text responses as needed by the API.
 
 - **`ApiManager`**
-  - Owns a shared `TokenManager` (static per Playwright worker).
-  - Constructs all endpoint classes (e.g. `ChatStreamApi`).
-  - Exposes `getXxxApi()` methods and an `ensureAuthenticated()` helper to set the Bearer token on `ApiClient` before use.
+  - Constructs all endpoint classes (e.g. `CheckFileApi`).
+  - Exposes `getXxxApi()` methods for accessing endpoint instances.
+  - Each endpoint may use its own authentication method (e.g., auth key in header, Bearer token).
 
 - **Endpoint classes (`*Api.ts`)**
   - One class per endpoint or grouped resource:
-    - e.g. `ChatStreamApi` with `chatStream()` and request helpers.
+    - e.g. `CheckFileApi` with `checkFile()` and request helpers.
   - Keep endpoint-specific logic here:
-    - Request body builders (e.g. `createChatStreamRequest`, `createDefaultChatStreamRequest`).
-    - Response validators (e.g. `validateChatStreamResponse`).
-    - Data extractors (e.g. `extractResponseText`).
+    - Request builders and parameter helpers.
+    - Response validators (e.g. `validateCheckFileResponse`).
+    - Data extractors (e.g. `extractSaleGuid`, `extractPropertyAddress`).
 
 - **Guidelines for adding endpoints**
   1. Implement a new `XxxApi` class under `api/endpoints/`:
      - Provide methods for each REST operation.
      - Add helpers for common request shapes and response validation.
+     - Handle authentication as needed (auth key, Bearer token, etc.).
   2. Register it in `ApiManager` and add `getXxxApi()`.
   3. Write tests under `tests/api/XxxApiTests.spec.ts` that:
-     - Use `ApiManager` + `ensureAuthenticated()`.
+     - Use `ApiManager` to get the API instance.
      - Cover at least one success path and one or two error/edge cases.
 
 ---
@@ -170,16 +163,16 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
   - Use `utils/config/environment-config.ts` (or an equivalent helper) to select environment-specific values (URLs, credentials, etc.) based on `TEST_ENV` / `NODE_ENV`.
   - Keep secrets and URLs in environment variables when possible. A common pattern is to use a project-specific prefix, for example:
     - `APP_AUTH_URL` – application auth entry (e.g., Okta) URL.
-    - `APP_UI_BASE_URL` or `APP_CHAT_PATH` – base UI URL or specific page path (such as `/chat`).
+    - `APP_UI_BASE_URL` or `TASK_CENTER_UI_URL` – base UI URL for Task Center.
     - `APP_UI_USER` / `APP_UI_PASSWORD` – UI login credentials.
     - `APP_USER_NAME` – expected display name (for greeting/user header assertions).
     - `APP_API_BASE_URL`, `APP_API_KEY`, etc. – for API layer configuration.
-  - **Note:** In this repository, the current application uses environment variables prefixed with `MIRA_` following this pattern. For new projects, choose an appropriate prefix (e.g., `APP_`, `FOOAPP_`) but keep the same configuration approach.
+  - **Note:** In this repository, Task Center uses environment variables prefixed with `TASK_CENTER_` or `APP_` following this pattern. Keep the same configuration approach for consistency.
 
 - **Test data helpers**
   - For complex request bodies or domain objects, prefer factories or helper methods rather than inline literals:
-    - API example: `ChatStreamApi.createDefaultChatStreamRequest(question, uuid, username)`.
-    - In future, a `ChatTestDataFactory` (similar to `TransactionTestDataFactory`) can encapsulate common chat scenarios.
+    - API example: Use helper methods in endpoint classes like `CheckFileApi.checkFile(saleGuid)`.
+    - In future, test data factories can encapsulate common scenarios for Task Center operations.
 
 ---
 

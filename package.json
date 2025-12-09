@@ -1,13 +1,14 @@
 {
-  "name": "automation-tests",
+  "name": "task-center-qa",
   "version": "1.0.0",
-  "description": "Playwright-based automation test suite (UI and API).",
+  "description": "Playwright-based automation test suite for Task Center (UI and API).",
   "main": "index.js",
   "scripts": {
     "smoketest": "npx playwright test -g@smokeTest --config=playwright.config.ts",
     "fullTest": "npx playwright test --config=playwright.config.ts",
     "regression": "npx playwright test -g@regression --config=playwright.config.ts",
     "test:js": "npx playwright test --config=playwright.config.js",
+    "test:ui": "npx playwright test --ui --config=playwright.config.ts",
     "jenkins:smoketest": "npm ci && npm run smoketest",
     "ui:test": "npx playwright test tests/ui/ --config=playwright.config.ts",
     "ui:smoketest": "npx playwright test tests/ui/ -g@smokeTest --config=playwright.config.ts",

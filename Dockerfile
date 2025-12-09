@@ -29,11 +29,8 @@ ENV NODE_ENV=test
 ENV ENVIRONMENT=${ENVIRONMENT}
 
 # API configuration environment variables (can be overridden at runtime)
-ENV API_BASE_URL="https://snqajousgi.execute-api.us-east-1.amazonaws.com/prod"
-ENV API_KEY=""
-ENV TEST_PRIMARY_AGENT_UUID="55b60ec1-a457-11f0-9ad7-9d91fbcd6328"
-ENV TEST_CO_AGENT_1_UUID="PLACEHOLDER_CO_AGENT_1_UUID"
-ENV TEST_CO_AGENT_2_UUID="PLACEHOLDER_CO_AGENT_2_UUID"
+# These can be set via docker-compose or at runtime
+ENV TEST_ENV=accp
 
 # Expose port (if needed for reports)
 EXPOSE 3000

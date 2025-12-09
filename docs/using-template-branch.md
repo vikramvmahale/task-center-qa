@@ -67,15 +67,15 @@ Once you have your new project repo, work through these common customization ste
      - `"description"`, `"author"`, and any metadata.
 
 2. **Set environment variables and config**
-   - Update or replace any `MIRA_*` / `APP_*` env vars to match the new application:
+   - Update or replace any `TASK_CENTER_*` / `APP_*` env vars to match the new application:
      - Auth URL (e.g. `APP_AUTH_URL` for Okta or other IdP).
      - Application base URLs (UI and API).
      - Test credentials and display names.
    - Adjust `utils/config/environment-config.ts` if you add new environments.
 
 3. **Rename or replace app-specific code**
-   - Update page objects (`ChatPagePO`, `AuthPagePO`, etc.) to match the new application’s DOM.
-   - Update API endpoints (`ChatStreamApi`, `ApiManager`) to point at the new service and implement new endpoints.
+   - Update page objects (`TaskCenterLoginPagePO`, `TaskCenterHomePagePO`, `AuthPagePO`, etc.) to match the new application's DOM.
+   - Update API endpoints (`CheckFileApi`, `ApiManager`) to point at the new service and implement new endpoints.
    - Adjust tests under `tests/api` and `tests/ui` to target the new application behavior.
 
 4. **Review CI/CD and Docker**
