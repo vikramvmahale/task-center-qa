@@ -18,8 +18,8 @@ This document captures the key patterns and best practices from the existing aut
   - **API layer**
     - Base client: `ApiClient.ts`
     - Manager: `ApiManager.ts`
-    - Endpoint classes: `endpoints/ChatStreamApi.ts`, `endpoints/SomeFeatureApi.ts`
-    - Tests: `tests/api/ChatStreamApiTests.spec.ts`
+    - Endpoint classes: `endpoints/CheckFileApi.ts`, `endpoints/SomeFeatureApi.ts`
+    - Tests: `tests/api/CheckFileApiTests.spec.ts`
   - **UI layer**
     - Page objects: `ChatPagePO.ts`, `SomeOtherPagePO.ts`
     - Tests: `tests/ui/ChatPageTests.spec.ts`
@@ -136,30 +136,27 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
     - Log request/response metadata for debugging.
     - Support both JSON responses and raw text responses (e.g., for streaming/chat endpoints).
 
-- **`TokenManager`**
-  - Handles fetching and caching Bearer tokens from an auth provider (e.g. Cognito `/oauth2/token`).
-  - Caches token + expiry with a safety buffer; reused by all API calls in a worker.
-
 - **`ApiManager`**
-  - Owns a shared `TokenManager` (static per Playwright worker).
-  - Constructs all endpoint classes (e.g. `ChatStreamApi`).
-  - Exposes `getXxxApi()` methods and an `ensureAuthenticated()` helper to set the Bearer token on `ApiClient` before use.
+  - Constructs all endpoint classes (e.g. `CheckFileApi`).
+  - Exposes `getXxxApi()` methods for accessing endpoint instances.
+  - Each endpoint may use its own authentication method (e.g., auth key in header, Bearer token).
 
 - **Endpoint classes (`*Api.ts`)**
   - One class per endpoint or grouped resource:
-    - e.g. `ChatStreamApi` with `chatStream()` and request helpers.
+    - e.g. `CheckFileApi` with `checkFile()` and request helpers.
   - Keep endpoint-specific logic here:
-    - Request body builders (e.g. `createChatStreamRequest`, `createDefaultChatStreamRequest`).
-    - Response validators (e.g. `validateChatStreamResponse`).
-    - Data extractors (e.g. `extractResponseText`).
+    - Request builders and parameter helpers.
+    - Response validators (e.g. `validateCheckFileResponse`).
+    - Data extractors (e.g. `extractSaleGuid`, `extractPropertyAddress`).
 
 - **Guidelines for adding endpoints**
   1. Implement a new `XxxApi` class under `api/endpoints/`:
      - Provide methods for each REST operation.
      - Add helpers for common request shapes and response validation.
+     - Handle authentication as needed (auth key, Bearer token, etc.).
   2. Register it in `ApiManager` and add `getXxxApi()`.
   3. Write tests under `tests/api/XxxApiTests.spec.ts` that:
-     - Use `ApiManager` + `ensureAuthenticated()`.
+     - Use `ApiManager` to get the API instance.
      - Cover at least one success path and one or two error/edge cases.
 
 ---
@@ -178,8 +175,8 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
 
 - **Test data helpers**
   - For complex request bodies or domain objects, prefer factories or helper methods rather than inline literals:
-    - API example: `ChatStreamApi.createDefaultChatStreamRequest(question, uuid, username)`.
-    - In future, a `ChatTestDataFactory` (similar to `TransactionTestDataFactory`) can encapsulate common chat scenarios.
+    - API example: Use helper methods in endpoint classes like `CheckFileApi.checkFile(saleGuid)`.
+    - In future, test data factories can encapsulate common scenarios for Task Center operations.
 
 ---
 

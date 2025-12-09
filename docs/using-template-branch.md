@@ -74,8 +74,8 @@ Once you have your new project repo, work through these common customization ste
    - Adjust `utils/config/environment-config.ts` if you add new environments.
 
 3. **Rename or replace app-specific code**
-   - Update page objects (`ChatPagePO`, `AuthPagePO`, etc.) to match the new application’s DOM.
-   - Update API endpoints (`ChatStreamApi`, `ApiManager`) to point at the new service and implement new endpoints.
+   - Update page objects (`ChatPagePO`, `AuthPagePO`, etc.) to match the new application's DOM.
+   - Update API endpoints (`CheckFileApi`, `ApiManager`) to point at the new service and implement new endpoints.
    - Adjust tests under `tests/api` and `tests/ui` to target the new application behavior.
 
 4. **Review CI/CD and Docker**
