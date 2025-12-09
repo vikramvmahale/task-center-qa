@@ -4,17 +4,17 @@ import { getEnvironmentConfig } from '../../utils/config/environment-config';
 
 // Get environment configuration
 const env = getEnvironmentConfig();
-const miraAuthUrl = `${env.testUrl}auth.html`;
-const miraChatPath = '/chat';
+const taskCenterAuthUrl = `${env.testUrl}auth.html`;
+const taskCenterChatPath = '/chat';
 const expectedFirstName = env.testEmail.split('@')[0].split('.')[0]; // Extract first name from email
 
 test.describe('Chat Page UI Tests', () => {
   test.beforeEach(async ({ page }: { page: Page }) => {
     const pOManager = new POManager(page);
-    const authPage = pOManager.getAuthPage(miraAuthUrl);
+    const authPage = pOManager.getAuthPage(taskCenterAuthUrl);
 
-    // Perform Okta login and wait for redirect back to Mira chat
-    await authPage.login(env.testEmail, env.testPassword, miraChatPath);
+    // Perform Okta login and wait for redirect back to Task Center chat
+    await authPage.login(env.testEmail, env.testPassword, taskCenterChatPath);
   });
 
   test('should load chat page and show greeting for logged in user', { tag: ['@ui'] }, async ({ page }: { page: Page }) => {

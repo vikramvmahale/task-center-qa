@@ -1,5 +1,5 @@
 /**
- * Base API Client for Mira Agent Platform API
+ * Base API Client for Task Center API
  * Handles authentication, base URL configuration, and common HTTP operations
  */
 
@@ -8,7 +8,7 @@ import { getEnvironmentConfig } from '../utils/config/environment-config';
 
 /**
  * API Response structure
- * Note: Mira API returns raw text data, not JSON
+ * Note: Task Center API returns raw text data, not JSON
  */
 export interface ApiResponse {
     status: number;
@@ -40,7 +40,7 @@ export class ApiClient {
     }
 
     /**
-     * Make a GET request to the Mira API
+     * Make a GET request to the Task Center API
      * @param endpoint - The API endpoint (without base URL)
      * @param options - Additional options for the request
      * @returns The response data (raw text)
@@ -49,7 +49,7 @@ export class ApiClient {
         const url = `${this.baseUrl}${endpoint}`;
         const headers = this.buildHeaders(options.headers);
 
-        console.log('📤 Mira API GET Request:', {
+        console.log('📤 Task Center API GET Request:', {
             url: url,
             headers: { 'Authorization': '***masked***' },
             timestamp: new Date().toISOString()
@@ -61,13 +61,13 @@ export class ApiClient {
                 ...options
             });
 
-            console.log('📥 Mira API Response:', {
+            console.log('📥 Task Center API Response:', {
                 status: response.status(),
                 statusText: response.statusText(),
                 timestamp: new Date().toISOString()
             });
 
-            // Mira API returns raw text, not JSON
+            // Task Center API returns raw text, not JSON
             let data: string;
             try {
                 data = await response.text();
@@ -87,17 +87,17 @@ export class ApiClient {
                 headers: response.headers()
             };
         } catch (error: any) {
-            console.log('❌ Mira API Error:', {
+            console.log('❌ Task Center API Error:', {
                 error: error.message,
                 url: url,
                 timestamp: new Date().toISOString()
             });
-            throw new Error(`Mira API GET request failed: ${error.message}`);
+            throw new Error(`Task Center API GET request failed: ${error.message}`);
         }
     }
 
     /**
-     * Make a POST request to the Mira API
+     * Make a POST request to the Task Center API
      * @param endpoint - The API endpoint (without base URL)
      * @param body - Request body
      * @param options - Additional options for the request
@@ -107,7 +107,7 @@ export class ApiClient {
         const url = `${this.baseUrl}${endpoint}`;
         const headers = this.buildHeaders(options.headers);
 
-        console.log('📤 Mira API POST Request:', {
+        console.log('📤 Task Center API POST Request:', {
             url: url,
             headers: { 'Authorization': '***masked***' },
             timestamp: new Date().toISOString()
@@ -120,17 +120,17 @@ export class ApiClient {
                 ...options
             });
 
-            console.log('📥 Mira API Response:', {
+            console.log('📥 Task Center API Response:', {
                 status: response.status(),
                 statusText: response.statusText(),
                 timestamp: new Date().toISOString()
             });
 
             if (!response.ok()) {
-                throw new Error(`Mira API request failed: ${response.status()} ${response.statusText()}`);
+                throw new Error(`Task Center API request failed: ${response.status()} ${response.statusText()}`);
             }
 
-            // Mira API returns raw text, not JSON
+            // Task Center API returns raw text, not JSON
             const data = await response.text();
             
             console.log('📊 Response Data (text length):', {
@@ -144,12 +144,12 @@ export class ApiClient {
                 headers: response.headers()
             };
         } catch (error: any) {
-            throw new Error(`Mira API POST request failed: ${error.message}`);
+            throw new Error(`Task Center API POST request failed: ${error.message}`);
         }
     }
 
     /**
-     * Make a PUT request to the Mira API
+     * Make a PUT request to the Task Center API
      * @param endpoint - The API endpoint (without base URL)
      * @param body - Request body
      * @param options - Additional options for the request
@@ -167,10 +167,10 @@ export class ApiClient {
             });
 
             if (!response.ok()) {
-                throw new Error(`Mira API request failed: ${response.status()} ${response.statusText()}`);
+                throw new Error(`Task Center API request failed: ${response.status()} ${response.statusText()}`);
             }
 
-            // Mira API returns raw text, not JSON
+            // Task Center API returns raw text, not JSON
             const data = await response.text();
             return {
                 status: response.status(),
@@ -178,12 +178,12 @@ export class ApiClient {
                 headers: response.headers()
             };
         } catch (error: any) {
-            throw new Error(`Mira API PUT request failed: ${error.message}`);
+            throw new Error(`Task Center API PUT request failed: ${error.message}`);
         }
     }
 
     /**
-     * Make a DELETE request to the Mira API
+     * Make a DELETE request to the Task Center API
      * @param endpoint - The API endpoint (without base URL)
      * @param options - Additional options for the request
      * @returns The response data (raw text)
@@ -199,10 +199,10 @@ export class ApiClient {
             });
 
             if (!response.ok()) {
-                throw new Error(`Mira API request failed: ${response.status()} ${response.statusText()}`);
+                throw new Error(`Task Center API request failed: ${response.status()} ${response.statusText()}`);
             }
 
-            // Mira API returns raw text, not JSON
+            // Task Center API returns raw text, not JSON
             const data = await response.text();
             return {
                 status: response.status(),
@@ -210,7 +210,7 @@ export class ApiClient {
                 headers: response.headers()
             };
         } catch (error: any) {
-            throw new Error(`Mira API DELETE request failed: ${error.message}`);
+            throw new Error(`Task Center API DELETE request failed: ${error.message}`);
         }
     }
 

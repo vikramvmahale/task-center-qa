@@ -19,7 +19,7 @@ export interface ChatStreamRequest {
 }
 
 /**
- * Chat Stream API endpoint class for Mira Agent Platform
+ * Chat Stream API endpoint class for Task Center
  * Handles chat stream operations
  */
 export class ChatStreamApi {
@@ -108,7 +108,7 @@ export class ChatStreamApi {
             return false;
         }
 
-        // Mira API returns raw text, so we just check that we have data
+        // Task Center API returns raw text, so we just check that we have data
         return typeof response.data === 'string' && response.data.length > 0;
     }
 

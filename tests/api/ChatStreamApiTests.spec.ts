@@ -4,7 +4,7 @@ import { ApiManager } from '../../api/ApiManager';
 /**
  * Chat Stream API Tests
  * 
- * These tests validate the Agent Platform Chat Stream API endpoint.
+ * These tests validate the Task Center Chat Stream API endpoint.
  * The API returns raw text responses (not JSON) for streaming chat interactions.
  */
 

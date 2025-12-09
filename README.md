@@ -1,29 +1,33 @@
-# README #
+# Task Center QA Automation
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repository contains the automation test suite for **Task Center**, built with Playwright and TypeScript.
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Automated UI and API testing for Task Center
+* End-to-end functional test coverage
+* Continuous integration test execution
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+* Install dependencies: `npm install`
+* Configure environment variables (see environment config files)
+* Run tests: `npm run test:all` or use specific test scripts
+* See `package.json` for available test scripts
+
+### Test Structure ###
+
+* `tests/ui/` - UI page tests
+* `tests/api/` - API endpoint tests
+* `tests/functional/` - End-to-end functional tests
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
+* Follow the patterns in `docs/automation-testing-guidelines.md`
+* Use Page Object Model (POM) for UI tests
+* Tag tests appropriately (`@ui`, `@api`, `@functional`)
 
 ### Who do I talk to? ###
 
 * Repo owner or admin
-* Other community or team contact
+* eXp Realty QA Team

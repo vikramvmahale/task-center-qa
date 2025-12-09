@@ -1,5 +1,5 @@
 /**
- * Token Manager for Mira Agent Platform API
+ * Token Manager for Task Center API
  * Handles fetching and managing Bearer tokens from OAuth endpoint
  */
 

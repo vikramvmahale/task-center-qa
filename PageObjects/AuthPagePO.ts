@@ -1,8 +1,8 @@
 import { expect, Page } from '@playwright/test';
 
 /**
- * Auth Page Object for the Mira Okta auth entry (/auth.html).
- * Handles logging in the user via Okta and waiting for redirect back to Mira.
+ * Auth Page Object for Task Center Okta auth entry (/auth.html).
+ * Handles logging in the user via Okta and waiting for redirect back to Task Center.
  */
 export class AuthPagePO {
   readonly page: Page;
@@ -14,14 +14,14 @@ export class AuthPagePO {
   }
 
   /**
-   * Perform Okta login for Mira.
+   * Perform Okta login for Task Center.
    *
    * @param username - Okta username (e.g., dylan.nonakatest@exprealty.com)
    * @param password - Okta password (e.g., alphaMay2025)
    * @param expectedRedirectPath - Path fragment expected after login (e.g., "/chat")
    */
   async login(username: string, password: string, expectedRedirectPath: string = '/chat'): Promise<void> {
-    // Go to the Mira auth entry page
+    // Go to the Task Center auth entry page
     await this.page.goto(this.authUrl, { waitUntil: 'load' });
 
     // Wait for Okta email/username field to appear
@@ -45,7 +45,7 @@ export class AuthPagePO {
     const submitButton = this.page.getByRole('button', { name: /Verify|Sign in|Log in/i });
     await submitButton.click();
 
-    // Wait for redirect back to Mira (chat page or shell)
+    // Wait for redirect back to Task Center (chat page or shell)
     await this.page.waitForLoadState('networkidle', { timeout: 60000 });
     await expect(this.page).toHaveURL(new RegExp(expectedRedirectPath.replace('/', '\/')), {
       timeout: 60000,

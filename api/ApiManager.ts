@@ -3,7 +3,7 @@ import { TokenManager } from './TokenManager';
 import { APIRequestContext } from '@playwright/test';
 
 /**
- * API Manager - Centralized access to all Mira Agent Platform API endpoints
+ * API Manager - Centralized access to all Task Center API endpoints
  * Similar to POManager but for API operations
  * 
  * This manager handles Bearer token authentication automatically.

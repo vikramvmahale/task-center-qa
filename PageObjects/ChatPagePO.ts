@@ -1,7 +1,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 /**
- * Chat Page Page Object for the Mira Agent Platform.
+ * Chat Page Page Object for Task Center.
  *
  * This models the main chat experience at `/chat`, including:
  * - Header / sidebar elements

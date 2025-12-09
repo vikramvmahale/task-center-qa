@@ -1,4 +1,4 @@
-## Automation Testing Guidelines (Template)
+## Automation Testing Guidelines - Task Center
 
 This document captures the key patterns and best practices from the existing automation in this repository so we can apply them consistently when building tests, APIs, and page objects for this and future projects.
 
@@ -174,7 +174,7 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
     - `APP_UI_USER` / `APP_UI_PASSWORD` – UI login credentials.
     - `APP_USER_NAME` – expected display name (for greeting/user header assertions).
     - `APP_API_BASE_URL`, `APP_API_KEY`, etc. – for API layer configuration.
-  - **Note:** In this repository, the current application uses environment variables prefixed with `MIRA_` following this pattern. For new projects, choose an appropriate prefix (e.g., `APP_`, `FOOAPP_`) but keep the same configuration approach.
+  - **Note:** In this repository, Task Center uses environment variables prefixed with `TASK_CENTER_` or `APP_` following this pattern. Keep the same configuration approach for consistency.
 
 - **Test data helpers**
   - For complex request bodies or domain objects, prefer factories or helper methods rather than inline literals:

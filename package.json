@@ -1,7 +1,7 @@
 {
-  "name": "automation-tests",
+  "name": "task-center-qa",
   "version": "1.0.0",
-  "description": "Playwright-based automation test suite (UI and API).",
+  "description": "Playwright-based automation test suite for Task Center (UI and API).",
   "main": "index.js",
   "scripts": {
     "smoketest": "npx playwright test -g@smokeTest --config=playwright.config.ts",

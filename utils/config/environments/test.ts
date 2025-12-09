@@ -12,7 +12,7 @@ export interface TestEnvironment {
     testEmail: string;
     testPassword: string;
     // API Configuration
-    apiBaseUrl: string; // Agent Platform API base URL
+    apiBaseUrl: string; // Task Center API base URL
     // Authentication Configuration
     tokenUrl: string; // OAuth token endpoint
     clientId: string;

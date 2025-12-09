@@ -22,7 +22,7 @@ export class POManager {
 
     /**
      * Get or create the Auth Page Page Object instance
-     * @param authUrl - Mira auth entry URL (e.g. https://.../auth.html)
+     * @param authUrl - Task Center auth entry URL (e.g. https://.../auth.html)
      * @returns Auth Page Page Object instance
      */
     getAuthPage(authUrl: string): AuthPagePO {
