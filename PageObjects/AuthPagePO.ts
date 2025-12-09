@@ -57,25 +57,6 @@ export class AuthPagePO {
     }
   }
 
-  /**
-   * Perform Okta login for Task Center (legacy method for backward compatibility).
-   *
-   * @param username - Okta username (e.g., dylan.nonakatest@exprealty.com)
-   * @param password - Okta password (e.g., alphaMay2025)
-   * @param expectedRedirectPath - Path fragment expected after login (e.g., "/chat")
-   */
-  async login(username: string, password: string, expectedRedirectPath: string = '/chat'): Promise<void> {
-    // Go to the Task Center auth entry page
-    await this.page.goto(this.authUrl, { waitUntil: 'load' });
-
-    // Perform Okta login
-    await this.performOktaLogin(username, password);
-
-    // Wait for redirect and verify path
-    await expect(this.page).toHaveURL(new RegExp(expectedRedirectPath.replace('/', '\/')), {
-      timeout: 60000,
-    });
-  }
 }
 
 

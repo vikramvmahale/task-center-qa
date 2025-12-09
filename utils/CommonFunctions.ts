@@ -18,12 +18,12 @@ export function getUSDateTimeString(): string {
  */
 
 /**
- * Generate a random transaction ID for testing
- * @param min - Minimum ID value
- * @param max - Maximum ID value
- * @returns Random transaction ID
+ * Generate a random number for testing
+ * @param min - Minimum value
+ * @param max - Maximum value
+ * @returns Random number
  */
-export function generateRandomTransactionId(min: number = 1, max: number = 1000): number {
+export function generateRandomNumber(min: number = 1, max: number = 1000): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -63,49 +63,14 @@ export function parseCurrency(currencyString: string): number {
 }
 
 /**
- * Test data types for generateTestData function
+ * Generate a random GUID/UUID for testing
+ * @returns Random GUID string
  */
-export type TestDataType = 'transaction' | 'bonus';
-
-/**
- * Generated test data structure
- */
-export interface GeneratedTestData {
-  transactionType?: string;
-  listPrice?: string;
-  salePrice?: string;
-  transactionNumber?: string;
-  propertyType?: string;
-  name?: string;
-  amount?: string;
-  is_buyer_side?: boolean;
-}
-
-/**
- * Generate test data for API requests
- * @param type - Type of test data to generate
- * @returns Generated test data
- */
-export function generateTestData(type: TestDataType): GeneratedTestData {
-  const timestamp = getUSDateTimeString();
-  
-  switch (type) {
-    case 'transaction':
-      return {
-        transactionType: 'Sale',
-        listPrice: '150000.00',
-        salePrice: '145000.00',
-        transactionNumber: `TEST-${timestamp}`,
-        propertyType: 'Residential Sale'
-      };
-    case 'bonus':
-      return {
-        name: `Test Bonus ${timestamp}`,
-        amount: '50.00',
-        is_buyer_side: true
-      };
-    default:
-      return {};
-  }
+export function generateRandomGuid(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 

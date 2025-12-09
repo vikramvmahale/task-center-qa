@@ -21,8 +21,8 @@ This document captures the key patterns and best practices from the existing aut
     - Endpoint classes: `endpoints/CheckFileApi.ts`, `endpoints/SomeFeatureApi.ts`
     - Tests: `tests/api/CheckFileApiTests.spec.ts`
   - **UI layer**
-    - Page objects: `ChatPagePO.ts`, `SomeOtherPagePO.ts`
-    - Tests: `tests/ui/ChatPageTests.spec.ts`
+    - Page objects: `TaskCenterLoginPagePO.ts`, `TaskCenterHomePagePO.ts`, `SomeOtherPagePO.ts`
+    - Tests: `tests/ui/TaskCenterLoginTests.spec.ts`
   - **Managers**
     - Page objects: `POManager.ts`
     - APIs: `ApiManager.ts`
@@ -57,12 +57,10 @@ Each page object should encapsulate a single logical page or feature, with a con
     - `expectGreetingForUser(name: string)`.
     - `expectLoggedInUser(name: string)`.
   - **Actions** – methods that perform user flows without hard assertions:
-    - `sendMessage(message: string)`
-    - `clickNewChat()`
+    - `clickExpPassport()`
     - `setPropertyAddressFilter(address: string)`
   - **Getters / utilities** – methods that read data or encapsulate waiting logic:
-    - `getLoggedInUserName()`
-    - `getRecentChatTitles()`
+    - `getCurrentUrl()`
     - `waitForPageLoad()`
 
 - **Guidelines**
@@ -80,16 +78,14 @@ Each page object should encapsulate a single logical page or feature, with a con
 
 - **Pattern**
   - Fields:
-    - `private transactionDashboardPage: TransactionDashboardPagePO;`
-    - `private transactionDetailsPage: TransactionDetailsPagePO;`
-    - `private chatPage: ChatPagePO;`
+    - `private taskCenterLoginPage: TaskCenterLoginPagePO;`
+    - `private taskCenterHomePage: TaskCenterHomePagePO;`
     - `private authPage?: AuthPagePO;`
   - Constructor:
     - Initialize all page objects with the shared `Page` instance.
   - Methods:
-    - `getTransactionDashboardPage(): TransactionDashboardPagePO`
-    - `getTransactionDetailsPage(): TransactionDetailsPagePO`
-    - `getChatPage(): ChatPagePO`
+    - `getTaskCenterLoginPage(): TaskCenterLoginPagePO`
+    - `getTaskCenterHomePage(): TaskCenterHomePagePO`
     - `getAuthPage(authUrl: string): AuthPagePO`
 
 - **Guidelines**
@@ -119,7 +115,7 @@ Each page object should encapsulate a single logical page or feature, with a con
     - `@functional` – cross-feature or end-to-end flows
     - Additional tags (`@smoke`, `@regression`, `@bug`) can be added as needed.
   - Example:
-    - `test('should load chat page', { tag: ['@ui'] }, async ({ page }) => { ... });`
+    - `test('should successfully log in and land on home page', { tag: ['@ui'] }, async ({ page }) => { ... });`
 
 ---
 
@@ -130,11 +126,11 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
 - **`ApiClient`**
   - Single responsibility: HTTP transport and authentication.
   - Typical usage pattern:
-    - Configure a base URL for the application API (for example, `https://test-agent-platform-model-api.example.com`).
+    - Configure a base URL for the application API (for example, `https://accp-tc.exprealty.com/`).
     - Use Bearer token auth via `Authorization: Bearer <token>` when appropriate.
     - Provide `get`, `post`, `put`, `delete` methods that return a shared `ApiResponse` type.
     - Log request/response metadata for debugging.
-    - Support both JSON responses and raw text responses (e.g., for streaming/chat endpoints).
+    - Support both JSON responses and raw text responses as needed by the API.
 
 - **`ApiManager`**
   - Constructs all endpoint classes (e.g. `CheckFileApi`).
@@ -167,7 +163,7 @@ The API layer is split into three levels: `ApiClient`, `ApiManager`, and per-end
   - Use `utils/config/environment-config.ts` (or an equivalent helper) to select environment-specific values (URLs, credentials, etc.) based on `TEST_ENV` / `NODE_ENV`.
   - Keep secrets and URLs in environment variables when possible. A common pattern is to use a project-specific prefix, for example:
     - `APP_AUTH_URL` – application auth entry (e.g., Okta) URL.
-    - `APP_UI_BASE_URL` or `APP_CHAT_PATH` – base UI URL or specific page path (such as `/chat`).
+    - `APP_UI_BASE_URL` or `TASK_CENTER_UI_URL` – base UI URL for Task Center.
     - `APP_UI_USER` / `APP_UI_PASSWORD` – UI login credentials.
     - `APP_USER_NAME` – expected display name (for greeting/user header assertions).
     - `APP_API_BASE_URL`, `APP_API_KEY`, etc. – for API layer configuration.
