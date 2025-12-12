@@ -74,7 +74,7 @@ pipeline
     stage('Run Tests and Upload Results') {
       steps {
         withCredentials([
-          string(credentialsId: 'task-center-qa-job-api-key', variable: 'API_KEY'),
+          string(credentialsId: 'tcalc-qa-job-api-key', variable: 'API_KEY'),
           [$class: 'AmazonWebServicesCredentialsBinding',
            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY',
