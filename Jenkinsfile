@@ -19,6 +19,57 @@ pipeline
   }
   stages
   {
+    stage('Build preparations') {
+      steps {
+        script {
+          gitCommitHash = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+          shortCommitHash = gitCommitHash.take(7)
+          // calculate a version tag
+          VERSION = shortCommitHash
+          // set the build display name
+          currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
+          // Single test environment using mainline
+          IMAGE_TAG = "${PROJECT}:main-${VERSION}"
+          IMAGE_LATEST = "${PROJECT}:latest"
+          TASKS_IMAGE_TAG = "${PROJECT}:tasks-latest"
+          ENV = "main"
+        }
+      }
+    }
+
+    stage('Docker build') {
+      steps {
+        script {
+          docker.build("${IMAGE_TAG}")
+          // Tag the same image as latest
+          sh("docker tag ${IMAGE_TAG} ${IMAGE_LATEST}")
+          // Tag the same image as tasks-latest
+          sh("docker tag ${IMAGE_TAG} ${TASKS_IMAGE_TAG}")
+        }
+      }
+    }
+
+    stage('Docker push') {
+      steps {
+        script {
+          sh("aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR}")
+          ECRURL = "http://${ECR}"
+          echo ECRURL
+          // Push the Docker images to ECR
+          docker.withRegistry(ECRURL)
+          {
+            docker.image(IMAGE_TAG).push()
+            docker.image(IMAGE_LATEST).push()
+            docker.image(TASKS_IMAGE_TAG).push()
+          }
+          // Set full ECR paths for use in test stage
+          FULL_IMAGE = "${ECR}${IMAGE_LATEST}"
+          FULL_TASKS_IMAGE = "${ECR}${TASKS_IMAGE_TAG}"
+          echo "Full image path: ${FULL_IMAGE}"
+          echo "Full tasks image path: ${FULL_TASKS_IMAGE}"
+        }
+      }
+    }
 
     stage('Run Tests and Upload Results') {
       steps {
@@ -63,12 +114,12 @@ pipeline
               def testEnvironment = params.TEST_ENVIRONMENT ?: 'test'
               echo "Test environment: ${testEnvironment}"
               
-              // Authenticate with ECR before pulling image
+              // Authenticate with ECR before pulling image (if not already authenticated)
               sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR}"
               
               // Run tests in Docker container with volumes mounted
               // Run as root to avoid permission issues with mounted volumes
-              docker.image("${ECR}${IMAGE}")
+              docker.image("${FULL_IMAGE}")
                 .inside("-u root -v ${WORKSPACE}/test-results:/app/test-results -v ${WORKSPACE}/playwright-report:/app/playwright-report -e API_KEY=${API_KEY} -e TEST_ENVIRONMENT=${testEnvironment}")
                 {
                   // Run tests (running as root, so no permission issues)
@@ -216,7 +267,9 @@ EOSUMMARY
     always {
       node('linux') {
         cleanWs()
-        sh "docker rmi $IMAGE | true"
+        sh "docker rmi ${IMAGE_TAG} | true"
+        sh "docker rmi ${IMAGE_LATEST} | true"
+        sh "docker rmi ${TASKS_IMAGE_TAG} | true"
       }
     }
     success {
