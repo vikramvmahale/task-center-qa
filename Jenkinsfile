@@ -132,7 +132,7 @@ pipeline
             } finally {
               // Upload test results to S3 after tests complete (even if tests failed)
               def timestamp = new Date().format('yyyyMMdd-HHmmss')
-              def s3Path = "s3://${S3_BUCKET}/${timestamp}/"
+              def s3Path = "s3://${S3_BUCKET}/${APP_NAME}/${timestamp}/"
               
               def reportZipUrl = ""
               
@@ -154,7 +154,7 @@ pipeline
                   zip -r playwright-report.zip playwright-report/ || echo "Warning: Failed to zip playwright-report"
                   
                   # Upload the zip file to S3
-                  zipKey="${timestamp}/playwright-report.zip"
+                  zipKey="${APP_NAME}/${timestamp}/playwright-report.zip"
                   aws s3 cp playwright-report.zip "s3://${S3_BUCKET}/\${zipKey}" \\
                     --region ${AWS_REGION} || echo "Warning: Failed to upload playwright-report.zip"
                   
@@ -257,7 +257,8 @@ EOSUMMARY
     TF_VAR_app_image = '99'
     TF_VAR_tasks_image = '99'
     // S3 bucket for test results (optional - set to enable S3 upload)
-    S3_BUCKET = 'exp-dev-task-center-qa-job-test-results'
+    S3_BUCKET = 'exp-dev-qa-job-test-results'
+    APP_NAME = 'task-center-qa'
     AWS_REGION = 'us-east-1'
     // Job pass/fail email addresses
     RECIPIENT_LIST = 'connor.reid@exprealty.net'
