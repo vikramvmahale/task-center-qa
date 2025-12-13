@@ -266,11 +266,12 @@ EOSUMMARY
   }
   post {
     always {
-      node('linux') {
-        cleanWs()
-        sh "docker rmi ${IMAGE_TAG} | true"
-        sh "docker rmi ${IMAGE_LATEST} | true"
-        sh "docker rmi ${TASKS_IMAGE_TAG} | true"
+      cleanWs()
+      script {
+        // Clean up Docker images if they exist (may not exist if running on different node)
+        sh "docker rmi ${IMAGE_TAG} 2>/dev/null || true"
+        sh "docker rmi ${IMAGE_LATEST} 2>/dev/null || true"
+        sh "docker rmi ${TASKS_IMAGE_TAG} 2>/dev/null || true"
       }
     }
     success {
