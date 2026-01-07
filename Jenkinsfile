@@ -205,7 +205,6 @@ EOSUMMARY
                   'steve.ybarra@exprealty.net',
                   'sherri.delbridge@exprealty.net',
                   'michael.auen@exprealty.net',
-                  'connor.reid@exprealty.net',
                   'pratik.thorat@exprealty.net'
                 ]
                 def emailJson = [
@@ -261,7 +260,7 @@ EOSUMMARY
     APP_NAME = 'task-center-qa'
     AWS_REGION = 'us-east-1'
     // Job pass/fail email addresses
-    RECIPIENT_LIST = 'connor.reid@exprealty.net'
+    RECIPIENT_LIST = 'michael.auen@exprealty.net'
     ENV = 'main'
   }
   post {
