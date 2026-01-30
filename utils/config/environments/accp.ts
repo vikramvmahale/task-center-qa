@@ -9,6 +9,9 @@ export interface AccpEnvironment {
     // UI Configuration
     testUrl: string;
     taskCenterUiUrl: string; // Task Center UI base URL
+    expandUrl: string; // Expand login URL (ACCP)
+    expandUsername: string; // Expand login username
+    expandPassword: string; // Expand login password
     oktaUrl: string;
     testEmail: string;
     testPassword: string;
@@ -33,6 +36,9 @@ export const accpEnvironment: AccpEnvironment = {
     name: 'accp',
     testUrl: '', // Update with actual ACCP URL
     taskCenterUiUrl: 'https://accp-tc.exprealty.com',
+    expandUrl: 'https://expand-accp.expenterprise.com/login.html',
+    expandUsername: 'QA_Dev',
+    expandPassword: 'Overstuff8-Maximize-Choking',
     oktaUrl: 'https://expi.oktapreview.com/', // Update with actual ACCP Okta URL if different
     testEmail: '', // Update with ACCP test credentials
     testPassword: '', // Update with ACCP test password

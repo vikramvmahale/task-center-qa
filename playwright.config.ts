@@ -1,4 +1,5 @@
 // @ts-check
+import path from 'path';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -6,14 +7,14 @@ import { defineConfig, devices } from '@playwright/test';
  * https://github.com/motdotla/dotenv
  */
 // import dotenv from 'dotenv';
-// import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  * @see https://playwright.dev/docs/test-configuration
+ * Run from project root (folder containing playwright.config.ts) so tests are discovered.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: path.resolve(__dirname, 'tests'),
   testMatch: '**/*.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -36,18 +37,26 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'on',
     screenshot: 'on', //'only-on-failure'
     video: 'retain-on-failure',
-    headless:true,
+    /* Run browser in headed mode (UI visible) */
+    headless: false,
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-
+      use: (() => {
+        const { deviceScaleFactor, ...desktopChrome } = devices['Desktop Chrome'];
+        return {
+          ...desktopChrome,
+          headless: false,
+          viewport: null,
+          launchOptions: { args: ['--start-maximized'] },
+        };
+      })(),
     },/*
 
     {
