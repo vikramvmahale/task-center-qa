@@ -49,9 +49,10 @@ export default defineConfig({
     {
       name: 'chromium',
       use: (() => {
-        const { deviceScaleFactor, ...desktopChrome } = devices['Desktop Chrome'];
+        const desktopChrome = devices['Desktop Chrome'] as Record<string, unknown>;
+        const { deviceScaleFactor: _df, ...rest } = desktopChrome;
         return {
-          ...desktopChrome,
+          ...rest,
           headless: false,
           viewport: null,
           launchOptions: { args: ['--start-maximized'] },
