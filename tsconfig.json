@@ -31,6 +31,7 @@
     "PageObjects/**/*",
     "utils/**/*",
     "api/**/*",
+    "playwright.config.ts",
     "types.d.ts"
   ],
   "exclude": [

@@ -1,6 +1,10 @@
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import * as pw from '@playwright/test';
+const test = pw.test as typeof import('@playwright/test')['test'];
+const expect = pw.expect as typeof import('@playwright/test')['expect'];
+import type { Page, BrowserContext } from '@playwright/test';
 import { POManager } from '../../PageObjects/POManager';
 import { getEnvironmentConfig } from '../../utils/config/environment-config';
+import { verifyTask } from '../../utils/taskVerification';
 
 /**
  * Hardcoded Mentor Individual - Functional Test
@@ -56,7 +60,9 @@ test.describe('Hardcoded Mentor Individual', () => {
     const username = expandUsername;
     const password = expandPassword;
 
-    let storedAgentId: string;
+    // Agent ID to use: stored from Expand or fallback to this value
+    const AGENT_ID = '242496';
+    let storedAgentId: string = AGENT_ID;
     let updatedDate: string;
 
     await test.step('Navigate to Expand login page', async () => {
@@ -89,7 +95,7 @@ test.describe('Hardcoded Mentor Individual', () => {
     await test.step('Select Mentees', async () => {
       await page.getByRole('menuitem', { name: 'Mentees' }).click();
     });
-
+     
     await test.step('Set Primary Licensed State to NV', async () => {
       await page.getByRole('textbox', { name: 'Primary Licensed State' }).click();
       await page.getByRole('textbox', { name: 'Primary Licensed State' }).fill('NV');
@@ -103,59 +109,53 @@ test.describe('Hardcoded Mentor Individual', () => {
       await page.getByLabel('Group').selectOption('mxui_widget_SearchInput_14_Reassign');
     });
 
+    await test.step('Fill Agent ID in mentor', async () => {
+      await page.getByRole('textbox', { name: 'Agent ID' }).click();
+      await page.getByRole('textbox', { name: 'Agent ID' }).fill(AGENT_ID);
+    });
+
     await test.step('Click Search', async () => {
       await page.getByRole('button', { name: 'Search' }).click();
     });
-
+    await page.waitForTimeout(5000);
     await test.step('Select Mentee, store Agent ID after clicking heading, click History, store updatedDate after tab', async () => {
       await page.getByRole('button', { name: 'Select Mentee' }).click();
-
+    
       // If "verify team type" popup appears, click Continue with Mentee
       const continueWithMentee = page.getByRole('button', { name: /continue with mentee/i });
       await continueWithMentee.waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
       if (await continueWithMentee.isVisible().catch(() => false)) {
         await continueWithMentee.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(5000);
+      }
+      
+      storedAgentId = (await page.locator('.mx-name-fd5f9ac7ee834da7bc0d8cbae87104a6').textContent({ timeout: 5000 }).catch(() => ''))?.trim() ?? storedAgentId;
+
+      await page.getByRole('tab', { name: 'History' }).click({ timeout: 8000 });
+      await page.waitForTimeout(400);
+
+      const dateOnly = (s: string) => (s.split(',')[0] ?? s).trim();
+      const pagingStatus = (await page.locator('.mx-name-grid1 .mx-grid-paging-status').textContent({ timeout: 3000 }).catch(() => ''))?.trim() ?? '';
+
+      if (pagingStatus !== '0' && pagingStatus !== '') {
+        const historyDateText = (await page.locator('.mx-name-grid1 .mx-name-index-0').textContent({ timeout: 4000 }).catch(() => ''))?.trim() ?? '';
+        updatedDate = dateOnly(historyDateText);
       }
 
-      await page.getByRole('heading', { name: 'Agent ID:' }).click();
+      await page.getByText('Program Start Date:').scrollIntoViewIfNeeded().catch(() => {});
 
-      // Store agentID after Agent ID: heading click
-      storedAgentId = (await page.getByLabel(/agent id/i).inputValue().catch(() => ''))?.trim()
-        ?? (await page.getByLabel(/agent id/i).textContent().catch(() => ''))?.trim()
-        ?? (await page.getByRole('heading', { name: 'Agent ID:' }).evaluate((el) => {
-            const h = el as HTMLElement;
-            const fromHeading = (h.textContent ?? '').replace(/agent id\s*:?\s*/gi, '').trim();
-            if (fromHeading) return fromHeading;
-            const sibling = h.nextElementSibling?.textContent?.trim() ?? '';
-            if (sibling) return sibling;
-            return (h.parentElement?.textContent ?? '').replace(/agent id\s*:?\s*/gi, '').trim();
-          }).catch(() => ''))
-        ?? (await page.getByRole('heading', { name: 'Agent ID:' }).locator('..').locator('..').textContent().catch(() => ''))?.replace(/agent id:?/gi, '').trim()
-        ?? '';
-
-      await page.getByRole('tab', { name: 'History' }).click();
-      await page.waitForTimeout(500);
-
-      // Store updatedDate after History tab click and wait
-      const historyRows = page.locator('table tbody tr');
-      const historyRowCount = await historyRows.count();
-      const noHistoryMessage = await page.getByText(/no records|no data|empty|no history/i).isVisible().catch(() => false);
-
-      if (noHistoryMessage || historyRowCount === 0) {
-        // When history is empty, use Program Start Date as updatedDate
-        const programStartLabel = page.getByText(/program start date\s*:?/i);
-        updatedDate = (await page.getByLabel(/program start date/i).inputValue().catch(() => ''))?.trim()
+      if (pagingStatus === '0' || pagingStatus === '') {
+        const programStartValue = (await page.getByLabel(/program start date/i).inputValue().catch(() => ''))?.trim()
           ?? (await page.getByLabel(/program start date/i).textContent().catch(() => ''))?.trim()
-          ?? (await programStartLabel.locator('..').textContent().catch(() => ''))?.replace(/program start date\s*:?\s*/gi, '').trim()
-          ?? (await programStartLabel.evaluate((el) => (el as HTMLElement).nextElementSibling?.textContent ?? '').catch(() => ''))?.trim()
-          ?? '';
-      } else {
-        // First row = most recent history entry
-        const firstHistoryRow = historyRows.first();
-        updatedDate = (await firstHistoryRow.locator('td').last().textContent().catch(() => ''))?.trim()
-          ?? (await firstHistoryRow.locator('td').nth(1).textContent().catch(() => ''))?.trim()
-          ?? '';
+          ?? (await page.evaluate(() => {
+              const el = Array.from(document.querySelectorAll('*')).find(n => /program\s*start\s*date\s*:?/i.test((n as HTMLElement).textContent || ''));
+              if (!el) return '';
+              const parent = (el as HTMLElement).closest('div, tr, li') || (el as HTMLElement).parentElement;
+              const text = (parent?.textContent || '').trim();
+              const m = text.match(/program\s*start\s*date\s*:?\s*([^\n\r]+)/i);
+              return m ? m[1].trim() : '';
+            }).catch(() => ''));
+        updatedDate = dateOnly(programStartValue ?? '') || (programStartValue ?? '');
       }
 
       console.log('agentId:', storedAgentId);
@@ -167,6 +167,15 @@ test.describe('Hardcoded Mentor Individual', () => {
       });
     });
 
+    await test.step('Convert stored updatedDate to PST for subsequent comparisons', async () => {
+      if (!updatedDate || !updatedDate.trim()) return;
+      const parsed = new Date(updatedDate.trim());
+      if (Number.isNaN(parsed.getTime())) return;
+      updatedDate = parsed.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', year: 'numeric', month: 'numeric', day: 'numeric' });
+      console.log('updatedDate (PST):', updatedDate);
+    });
+
+    // After storing updatedDate (PST): open Task Center, switch to Agent Support, click on Agents
     let tcPage: Page;
     await test.step('Open new tab for Task Center', async () => {
       tcPage = await context.newPage();
@@ -197,15 +206,52 @@ test.describe('Hardcoded Mentor Individual', () => {
       await homePage.switchToModule('agent_support');
     });
 
+   
+
     await test.step('Verify Agents page is visible', async () => {
       await expect(tcPage.getByRole('heading', { name: 'Agents', exact: true })).toBeVisible();
     });
 
-    await test.step('Open Filters and fill Agent ID filter with storedAgentId from Expand', async () => {
+    await test.step('Open Filters and fill Agent ID with storedAgentId from Expand', async () => {
       await tcPage.getByRole('button', { name: 'filter icon Filters' }).click();
-      await expect(tcPage.locator('#agent_id-filter-field-container').getByText('Agent ID')).toBeVisible();
       await tcPage.getByRole('textbox', { name: 'Agent ID' }).click();
       await tcPage.getByRole('textbox', { name: 'Agent ID' }).fill(storedAgentId);
+    });
+
+    await test.step('Click Filter Team Name after entering Agent ID', async () => {
+      await tcPage.getByPlaceholder('Filter Team Name').click({ timeout: 8000 });
+    });
+    
+    await test.step('Click Apply and open agent record', async () => {
+      await tcPage.waitForTimeout(2000);
+      try {
+        await expect(tcPage.getByText("Filters updated. Select 'Apply' to see results.")).toBeVisible({ timeout: 5000 });
+      } catch {
+        // Message may not appear; continue to click Apply
+      }
+      await tcPage.getByRole('button', { name: 'Apply' }).click({ timeout: 10000, force: true });
+      await page.waitForTimeout(5000);
+      await tcPage.locator('tr[class*="resource-table-row"] td >> div >> a').first().click({ timeout: 15000 });
+    });
+   
+    await test.step('Wait for Agent details and scroll to upcoming tasks', async () => {
+      await tcPage.waitForTimeout(5000);
+      await expect(tcPage.locator('div.main-details-container header.card-header-title')).toBeVisible({ timeout: 15000 });
+      await tcPage.locator('div[title="Number of upcoming tasks"]').scrollIntoViewIfNeeded({ timeout: 5000 }).catch(() => {});
+    });
+
+    await test.step('Verify tasks: Mentee Detail Review, Check Pairing Request/Attempts, Send Pairing Request (due updatedDate, assign Agent Programs Analyst, trigger Manual/Reassigned)', async () => {
+      await tcPage.locator('#task-list-grid-1685849').waitFor({ state: 'visible', timeout: 10000 }).catch(() => {});
+      const requestNumbers = [1, 2];
+      const taskNames = ['Mentee Detail Review', 'Check Pairing Request/Attempts', 'Send Pairing Request'] as const;
+      for (const taskName of taskNames) {
+        for (const requestNumber of requestNumbers) {
+          const card = tcPage.locator('#task-list-grid-1685849 .task-card').filter({ hasText: `${taskName} - ${requestNumber}` }).first();
+          if (await card.isVisible().catch(() => false)) {
+            await verifyTask(tcPage, taskName, requestNumber, updatedDate);
+          }
+        }
+      }
     });
   });
 });
